@@ -3,7 +3,7 @@ package ru.yandex.practicum.gym;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
-import java.util.LinkedHashMap;
+import java.util.LinkedList;
 
 public class TimetableTest {
 
@@ -114,15 +114,15 @@ public class TimetableTest {
                 DayOfWeek.WEDNESDAY, new TimeOfDay(16, 0)));
 
 
-        LinkedHashMap<Coach, Integer> countByCoaches = timetable.getCountByCoaches();
+        LinkedList<CounterForCoach> countByCoaches = timetable.getCountByCoaches();
         //Проверить, что первый в списке тренер Измайлов
-        Assertions.assertEquals("Измайлов", countByCoaches.firstEntry().getKey().getSurname());
+        Assertions.assertEquals("Измайлов", countByCoaches.getFirst().getCoach().getSurname());
         //Проверить, что последний в списке тренер Васильев
-        Assertions.assertEquals("Васильев", countByCoaches.lastEntry().getKey().getSurname());
+        Assertions.assertEquals("Васильев", countByCoaches.getLast().getCoach().getSurname());
         //Проверить, что тренер Семёнов имеет 3 занятия в неделю
-        for (Coach coach : countByCoaches.keySet()) {
-            if (coach.getSurname().equals("Семёнов")) {
-                Assertions.assertEquals(3, countByCoaches.get(coach));
+        for (CounterForCoach counterForCoach : countByCoaches) {
+            if (counterForCoach.getCoach().getSurname().equals("Семёнов")) {
+                Assertions.assertEquals(3, counterForCoach.getTrainingSessionCounter());
             }
         }
 

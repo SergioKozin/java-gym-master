@@ -19,11 +19,11 @@ public class Timetable {
         sessions.add(trainingSession);
     }
 
-    public NavigableMap<TimeOfDay, LinkedList<TrainingSession>> getTrainingSessionsForDay(DayOfWeek dayOfWeek) {
+    public TreeMap<TimeOfDay, LinkedList<TrainingSession>> getTrainingSessionsForDay(DayOfWeek dayOfWeek) {
         //как реализовать, тоже непонятно, но сложность должна быть О(1)
         TreeMap<TimeOfDay, LinkedList<TrainingSession>> dayMap = timetable.get(dayOfWeek);
         if (dayMap == null) {
-            return Collections.emptyNavigableMap();
+            return new TreeMap<>();
         }
         return dayMap;
     }
@@ -43,34 +43,30 @@ public class Timetable {
         return sessions;
     }
 
-    public LinkedHashMap<Coach, Integer> getCountByCoaches() {
-        Map<Coach, Integer> counterOfTrainings = new HashMap<>();
+    public LinkedList<CounterForCoach> getCountByCoaches() {
+        LinkedList<CounterForCoach> counterOfTrainings = new LinkedList<>();
+        boolean found;
         //заполняем
         for (DayOfWeek dayOfWeek : timetable.keySet()) {
             for (LinkedList<TrainingSession> trainingSessions : getTrainingSessionsForDay(dayOfWeek).values()) {
                 for (TrainingSession trainingSession : trainingSessions) {
-                    if (counterOfTrainings.containsKey(trainingSession.getCoach())) {
-                        counterOfTrainings.put(trainingSession.getCoach(),
-                                counterOfTrainings.get(trainingSession.getCoach()) + 1);
-                    } else {
-                        counterOfTrainings.put(trainingSession.getCoach(), 1);
+                    found = false;
+                    for (CounterForCoach counterForCoach : counterOfTrainings) {
+                        if (counterForCoach.getCoach().equals(trainingSession.getCoach())) {
+                            counterForCoach.setTrainingSessionCounter(counterForCoach.getTrainingSessionCounter() + 1);
+                            found = true;
+                            break;
+                        }
+                    }
+                    if (!found) {
+                        counterOfTrainings.add(new CounterForCoach(trainingSession.getCoach(), 1));
                     }
                 }
             }
         }
 
-        // превращаем в список
-        List<Map.Entry<Coach, Integer>> list = new ArrayList<>(counterOfTrainings.entrySet());
-
-        // сортируем по значению
-        list.sort(Map.Entry.<Coach, Integer>comparingByValue().reversed());
-        //создаем и заполняем мапу отсортированную по значению
-        LinkedHashMap<Coach, Integer> sortedCounterOfTrainings = new LinkedHashMap<>();
-
-        for (Map.Entry<Coach, Integer> entry : list) {
-            sortedCounterOfTrainings.put(entry.getKey(), entry.getValue());
-        }
-
-        return sortedCounterOfTrainings;
+        // сортируем объекты CounterForCoach
+        Collections.sort(counterOfTrainings.reversed());
+        return counterOfTrainings;
     }
 }
